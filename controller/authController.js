@@ -4,7 +4,7 @@ const crypto = require('crypto');
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
-const sendEmail = require('../utils/email');
+const Email = require('../utils/email');
 //sign token
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -46,8 +46,9 @@ exports.signUp = catchAsync(async (req, res, next) => {
     confirmPassword: req.body.confirmPassword,
   });
   //as for HSA 256 algorithm 32 long char secret key is best for security purpose
-  const token = signToken(newUser._id);
-
+  //const token = signToken(newUser._id);
+  const url = `${req.protocol}://${req.get('host')}/me`;
+  await new Email(newUser, url).sendWelcome();
   createSendToken(newUser, 201, res);
 });
 
@@ -182,11 +183,12 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   confirm password to ${resetUrl} .\nIf You didnt forget your password please ignore this message`;
 
   try {
-    await sendEmail({
-      email: user.email,
-      subject: 'Link to reset your password (valid for 10min)',
-      message,
-    });
+    // await sendEmail({
+    //   email: user.email,
+    //   subject: 'Link to reset your password (valid for 10min)',
+    //   message,
+    // });
+    await new Email(user, resetUrl).sendPasswordReset();
     res.status(200).json({
       status: 'success',
       message: 'please check your email',

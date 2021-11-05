@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
 const dotenv = require('dotenv');
+const mongoose = require('mongoose');
 
 // for synchronous rejection
 process.on('uncaughtException', (err) => {
@@ -9,12 +9,12 @@ process.on('uncaughtException', (err) => {
   process.exit(1);
 });
 
+const app = require('./app');
+
 //dot env config
 dotenv.config({
   path: './config.env',
 });
-const app = require('./app');
-
 //mongodb config
 const DB = process.env.DATABASE.replace('<PASSWORD>', process.env.DB_PASSWORD);
 mongoose
